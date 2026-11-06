@@ -1,6 +1,6 @@
 // Compila todo a un único index.html autocontenido (se abre con doble clic, sin servidor).
 import { build } from 'esbuild';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const js = await build({
   entryPoints: ['src/main.js'], bundle: true, minify: true, write: false, format: 'iife', target: 'es2020',
@@ -13,4 +13,6 @@ html = html.replace(/__IMG_(\w+)__/g, (_, n) => `data:image/jpeg;base64,${readFi
 html = html.replace('/*__CSS__*/', () => css.outputFiles[0].text);
 html = html.replace('/*__JS__*/', () => js.outputFiles[0].text.replace(/<\/script/g, '<\\/script'));
 writeFileSync('index.html', html);
+mkdirSync('public', { recursive: true });
+writeFileSync('public/index.html', html); // carpeta que publica Vercel
 console.log('index.html', (Buffer.byteLength(html) / 1048576).toFixed(2) + ' MB');
